@@ -1,0 +1,64 @@
+version: "3"
+services:
+
+  graphite:
+    image: hopsoft/graphite-statsd
+    ports:
+      - "8000:80"
+      - "2003:2003"
+      - "2004:2004"
+      - "2023:2023"
+      - "2024:2024"
+      - "8125:8125/udp"
+      - "8126:8126"
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    links:
+      - graphite
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+
+  poll_start_poll-config:
+        image: bash
+        depends_on:
+          - poll-config
+        command: >
+          /usr/local/bin/bash -c "
+            while ! nc -z poll-config 17601;
+            do
+              echo sleeping;
+              sleep 1;
+            done;
+            echo Connected!;
+          "
+
+  poll-config:
+    image: isaacguo/poll-config
+    ports:
+      - "17601:17601"
+    command: --spring.profiles.active=production
+
+  poll-eureka:
+    image: isaacguo/poll-eureka
+    ports:
+      - "8761:8761"
+    depends_on:
+      - poll-config
+    command: --spring.profiles.active=production
+
+
+  poll-gateway:
+    image: isaacguo/poll-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - poll-eureka
+      - poll-config
+    command: --spring.profiles.active=production
+
+
+

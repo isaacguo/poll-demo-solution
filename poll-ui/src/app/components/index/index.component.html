@@ -1,0 +1,82 @@
+<div class="container">
+
+  <wizard *ngIf="!hasSubmitted" #wizard navBarLayout="small" navBarLocation="left">
+
+    <wizard-step stepTitle="HI" navigationSymbol="HI">
+      <div class="centered-content">
+        <div class="margin10px">
+          Hi, 请点击
+          <button type="button" class="btn btn-default" nextStep=""><span class="glyphicon glyphicon-menu-right"></span>
+          </button>
+          开始填写调查问卷， 本问卷无记名
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default margin10px " (click)="onShowQRButonClicked()">Show QR Code
+          </button>
+          <button type="button" class="btn btn-default margin10px" nextStep><span
+            class="glyphicon glyphicon-menu-right"></span></button>
+        </div>
+        <div *ngIf="showQRCode" class="row">
+          <qr-code [value]=url [size]="150"></qr-code>
+        </div>
+      </div>
+    </wizard-step>
+
+    <wizard-step *ngFor="let question of questions; let qIndex = index;" stepTitle="Q{{qIndex+1}}"
+                 navigationSymbol="{{qIndex+1}}">
+      <div class="centered-content">
+        <div class="margin10px">
+          {{question.question}}
+        </div>
+        <ul class="list-group">
+          <li class="list-group-item"
+              *ngFor="let availableAnswer of question.availableAnswers; let aIndex=index"
+              [ngClass]="{'active':isHighlighted(qIndex,availableAnswer)}"
+              (click)="onItemClick(qIndex,availableAnswer)">
+            {{availableAnswer.answer}}
+          </li>
+        </ul>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default margin10px" previousStep><span
+            class="glyphicon glyphicon-menu-left"></span>
+          </button>
+          <button type="button" class="btn btn-default  margin10px" [disabled]="!canGoNextStep(qIndex)" nextStep><span
+            class="glyphicon glyphicon-menu-right"></span>
+          </button>
+        </div>
+      </div>
+    </wizard-step>
+
+    <wizard-step stepTitle="FIN" navigationSymbol="FIN">
+      <div class="centered-content">
+        <div class="margin10px">
+          谢谢！
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default margin10px" previousStep><span
+            class="glyphicon glyphicon-menu-left"></span></button>
+          <button type="button" class="btn btn-default margin10px" nextStep (click)="onSubmitButtonClicked()">提交
+          </button>
+        </div>
+
+      </div>
+    </wizard-step>
+  </wizard>
+
+
+  <div class="row" *ngIf="hasSubmitted">
+    <p class="text-center margin10px">
+      <span class="glyphicon glyphicon-thumbs-up glyphicon-lg"></span>
+    </p>
+    <p class="text-center"> 谢谢参与，请移步至调查结果页面查看统计结果</p>
+    <p class="text-center"> 您可点击此处图标
+      <button type="button" class="btn btn-default" (click)="onShowResultButtonClicked()"><span
+        class="glyphicon glyphicon-stats "
+      ></span>
+      </button>
+      立即跳转
+    </p>
+    <p class="text-center">或等待 {{secondsToJump}} 秒后自动跳转</p>
+
+  </div>
+</div>
