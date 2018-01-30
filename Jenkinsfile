@@ -1,4 +1,4 @@
-node {
+node('jenkins-java1.8-mvn-nodejs') {
 
     try {
         notifyBuild('STARTED')
